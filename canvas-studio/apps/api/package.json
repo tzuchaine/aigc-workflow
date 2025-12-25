@@ -1,0 +1,34 @@
+{
+  "name": "@canvas-studio/api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsup src/index.ts --format esm --dts",
+    "start": "node dist/index.js",
+    "lint": "eslint .",
+    "type-check": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@canvas-studio/shared": "workspace:*",
+    "@fastify/cors": "^11.1.0",
+    "bullmq": "^5.58.0",
+    "dotenv": "^16.6.1",
+    "fastify": "^5.3.3",
+    "fastify-sse-v2": "^4.2.0",
+    "pino": "^9.7.0",
+    "zod": "^3.25.76"
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^11.10.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@types/node": "^22.18.0",
+    "eslint": "^9.39.0",
+    "tsx": "^4.20.5",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.46.1"
+  }
+}

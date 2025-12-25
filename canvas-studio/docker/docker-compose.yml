@@ -1,0 +1,46 @@
+name: canvas-studio
+
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    container_name: canvas-studio-redis
+    ports:
+      - "6379:6379"
+
+  api:
+    image: node:22-bullseye
+    working_dir: /app
+    volumes:
+      - ../:/app
+    command: >
+      sh -c "corepack enable &&
+             pnpm install &&
+             node --inspect=0.0.0.0:9229 ./node_modules/.bin/tsx watch apps/api/src/index.ts"
+    environment:
+      API_HOST: 0.0.0.0
+      API_PORT: 8787
+      REDIS_URL: redis://redis:6379
+      DB_PATH: /app/data/app.sqlite
+    ports:
+      - "8787:8787"
+      - "9229:9229"
+    depends_on:
+      - redis
+
+  worker:
+    image: node:22-bullseye
+    working_dir: /app
+    volumes:
+      - ../:/app
+    command: >
+      sh -c "corepack enable &&
+             pnpm install &&
+             node --inspect=0.0.0.0:9230 ./node_modules/.bin/tsx watch apps/worker/src/index.ts"
+    environment:
+      REDIS_URL: redis://redis:6379
+      DB_PATH: /app/data/app.sqlite
+    ports:
+      - "9230:9230"
+    depends_on:
+      - redis

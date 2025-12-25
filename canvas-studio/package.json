@@ -1,0 +1,16 @@
+{
+  "name": "canvas-studio",
+  "private": true,
+  "packageManager": "pnpm@10.26.1",
+  "scripts": {
+    "docker:up": "docker compose -p canvas-studio -f docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -p canvas-studio -f docker/docker-compose.yml down",
+    "dev": "concurrently -n api,worker,web -c cyan,magenta,green \"pnpm -C apps/api dev\" \"pnpm -C apps/worker dev\" \"pnpm -C apps/web dev\"",
+    "build": "pnpm -C apps/api build && pnpm -C apps/worker build && pnpm -C apps/web build",
+    "lint": "pnpm -C apps/api lint && pnpm -C apps/worker lint && pnpm -C apps/web lint",
+    "type-check": "pnpm -C apps/api type-check && pnpm -C apps/worker type-check && pnpm -C apps/web type-check"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
