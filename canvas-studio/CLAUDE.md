@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+需遵守[./AGENTS.md]所有规则
+
 ## 项目概述
 
 AIGC Canvas Studio - 一个"自由画布 + 节点即作业 + 自动触发"的自用 AIGC 工作台。采用 Monorepo 架构，前后端同仓库，支持一键启动。

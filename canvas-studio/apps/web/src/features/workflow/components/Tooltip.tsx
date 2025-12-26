@@ -25,7 +25,7 @@ type TooltipProps = {
 };
 
 export const Tooltip = memo<TooltipProps>(
-  ({ title, children, shortcuts, placement = 'top', disabled = false, asChild = true }) => {
+  ({ title, children, shortcuts, placement = 'top', disabled = false, asChild = false }) => {
     const [open, setOpen] = useState(false);
     const [isHoverPopup, setIsHoverPopup] = useState(false);
     const [isHoverTrigger, setIsHoverTrigger] = useState(false);

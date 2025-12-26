@@ -1,86 +1,98 @@
 /**
  * 左侧垂直工具栏
- * 参考 Dify 的 operator/control.tsx 实现
+ * 参照 Dify 的 operator/control.tsx，实现磨砂背景与悬浮阴影
  */
 
-import { memo } from 'react';
-import {
-  Plus,
-  StickyNote,
-  MousePointer2,
-  Hand,
-  LayoutGrid,
-} from 'lucide-react';
-import { useWorkflowStore } from '../store/useWorkflowStore';
+import { memo, useState, type ReactNode } from 'react';
+import type { Node } from 'reactflow';
+import { Hand, LayoutGrid, MousePointer2, Plus, StickyNote } from 'lucide-react';
+import { cn } from '../../../utils/cn';
 import { useAutoLayout } from '../hooks/useAutoLayout';
-import { ControlMode } from '../types';
+import { useWorkflowStore } from '../store/useWorkflowStore';
+import { ControlMode, type WorkflowNodeData } from '../types';
+import { Divider } from './Divider';
 import { Tooltip } from './Tooltip';
+import { NodeSelector } from './panels';
+import { useWorkflowHistory } from '../hooks/useWorkflowHistory';
+import { createWorkflowNode } from './nodeFactory';
 
 export const Toolbar = memo(() => {
-  const { controlMode, setControlMode } = useWorkflowStore();
+  const { controlMode, setControlMode, nodes, setNodes } = useWorkflowStore();
   const { organizeLayout } = useAutoLayout();
-
-  const handleAddNode = () => {
-    // TODO: 打开添加节点面板
-    console.log('添加节点');
-  };
+  const { saveStateToHistory } = useWorkflowHistory();
+  const [selectorOpen, setSelectorOpen] = useState(false);
 
   const handleAddNote = () => {
-    // TODO: 添加注释节点
-    console.log('添加注释');
+    // TODO: 添加便签节点
+    console.log('添加便签');
   };
 
   return (
-    <div className="flex flex-col items-center gap-0.5 rounded-lg border border-neutral-200 bg-white p-0.5 shadow-lg">
-      {/* 添加节点 */}
-      <Tooltip title="添加节点">
-        <ToolbarButton icon={<Plus className="h-4 w-4" />} onClick={handleAddNode} />
-      </Tooltip>
-
-      {/* 添加注释 */}
-      <Tooltip title="添加注释">
-        <ToolbarButton icon={<StickyNote className="h-4 w-4" />} onClick={handleAddNote} />
-      </Tooltip>
-
-      {/* 分割线 */}
-      <div className="my-1 h-px w-3.5 bg-neutral-200" />
-
-      {/* 指针模式 */}
-      <Tooltip title="指针模式" shortcuts={['V']}>
-        <ToolbarButton
-          icon={<MousePointer2 className="h-4 w-4" />}
-          onClick={() => setControlMode(ControlMode.Pointer)}
-          active={controlMode === ControlMode.Pointer}
+    <>
+      <div className="flex flex-col items-center space-y-0.5 rounded-lg border-[0.5px] border-components-actionbar-border bg-components-actionbar-bg p-0.5 shadow-lg backdrop-blur-[5px]">
+        {/* 添加节点 */}
+        <NodeSelector
+          open={selectorOpen}
+          onOpenChange={setSelectorOpen}
+          trigger={(open) => (
+            <Tooltip placement="right" title="添加节点">
+              <ToolbarButton
+                icon={<Plus className="w-4 h-4" />}
+                onClick={() => setSelectorOpen(!open)}
+              />
+            </Tooltip>
+          )}
+          onSelect={(type, meta) => {
+            const newNode: Node<WorkflowNodeData> = createWorkflowNode(type, meta, nodes.length);
+            setNodes((prev) => [...prev, newNode]);
+            setSelectorOpen(false);
+            setTimeout(() => saveStateToHistory(), 0);
+          }}
         />
-      </Tooltip>
 
-      {/* 手掌模式 */}
-      <Tooltip title="手掌模式" shortcuts={['H']}>
-        <ToolbarButton
-          icon={<Hand className="h-4 w-4" />}
-          onClick={() => setControlMode(ControlMode.Hand)}
-          active={controlMode === ControlMode.Hand}
-        />
-      </Tooltip>
+        {/* 添加便签 */}
+        <Tooltip placement='right' title="添加便签">
+          <ToolbarButton icon={<StickyNote className="w-4 h-4" />} onClick={handleAddNote} />
+        </Tooltip>
 
-      {/* 分割线 */}
-      <div className="my-1 h-px w-3.5 bg-neutral-200" />
+        <Divider type="horizontal" className="w-7 bg-components-actionbar-border" />
 
-      {/* 整理节点 */}
-      <Tooltip title="整理节点" shortcuts={['Ctrl', 'O']}>
-        <ToolbarButton icon={<LayoutGrid className="h-4 w-4" />} onClick={organizeLayout} />
-      </Tooltip>
-    </div>
+        {/* 指针模式 */}
+        <Tooltip placement='right' title="指针模式" shortcuts={['V']}>
+          <ToolbarButton
+            icon={<MousePointer2 className="w-4 h-4" />}
+            onClick={() => setControlMode(ControlMode.Pointer)}
+            active={controlMode === ControlMode.Pointer}
+          />
+        </Tooltip>
+
+        {/* 手掌模式 */}
+        <Tooltip placement='right' title="手掌模式" shortcuts={['H']}>
+          <ToolbarButton
+            icon={<Hand className="w-4 h-4" />}
+            onClick={() => setControlMode(ControlMode.Hand)}
+            active={controlMode === ControlMode.Hand}
+          />
+        </Tooltip>
+
+        <Divider type="horizontal" className="w-7 bg-components-actionbar-border" />
+
+        {/* 整理布局 */}
+        <Tooltip placement='right' title="整理布局" shortcuts={['Ctrl', 'O']}>
+          <ToolbarButton icon={<LayoutGrid className="w-4 h-4" />} onClick={organizeLayout} />
+        </Tooltip>
+      </div>
+    </>
   );
 });
 
 Toolbar.displayName = 'Toolbar';
 
 /**
- * 工具栏按钮组件
+ * 工具栏按钮
  */
 type ToolbarButtonProps = {
-  icon: React.ReactNode;
+  icon: ReactNode;
   onClick: () => void;
   active?: boolean;
   disabled?: boolean;
@@ -90,19 +102,17 @@ const ToolbarButton = memo<ToolbarButtonProps>(
   ({ icon, onClick, active = false, disabled = false }) => {
     return (
       <button
+        type="button"
         onClick={onClick}
         disabled={disabled}
-        className={`
-          flex h-8 w-8 items-center justify-center rounded-md
-          transition-colors
-          ${
-            active
-              ? 'bg-blue-100 text-blue-600'
-              : disabled
-                ? 'cursor-not-allowed text-neutral-300'
-                : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
-          }
-        `}
+        data-active={active}
+        className={cn(
+          'flex h-8 w-8 select-none items-center justify-center rounded-md px-1.5 text-text-tertiary transition-colors',
+          'hover:bg-state-base-hover hover:text-text-secondary',
+          'data-[active=true]:bg-state-base-hover data-[active=true]:text-text-secondary data-[active=true]:border data-[active=true]:border-components-actionbar-border',
+          disabled &&
+            'cursor-not-allowed text-text-disabled hover:bg-transparent hover:text-text-disabled'
+        )}
       >
         {icon}
       </button>

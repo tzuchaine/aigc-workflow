@@ -30,3 +30,6 @@ export type WorkflowHistoryEventMeta = {
   nodeTitle?: string;
   nodeType?: string;
 };
+
+export * from './nodes';
+export * from './edges';

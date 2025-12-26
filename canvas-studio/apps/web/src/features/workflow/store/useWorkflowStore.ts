@@ -7,15 +7,15 @@ import type { Edge, Node } from 'reactflow';
 import { temporal } from 'zundo';
 import { create } from 'zustand';
 import type { WorkflowHistoryEventMeta, WorkflowHistoryEventT } from '../types';
-import { ControlMode } from '../types';
+import { ControlMode, type WorkflowEdgeData, type WorkflowNodeData } from '../types';
 
 /**
  * 工作流状态定义
  */
 export type WorkflowState = {
   // ReactFlow 核心状态
-  nodes: Node[];
-  edges: Edge[];
+  nodes: Node<WorkflowNodeData>[];
+  edges: Edge<WorkflowEdgeData>[];
 
   // 控制模式
   controlMode: ControlMode;
@@ -32,8 +32,8 @@ export type WorkflowState = {
  */
 export type WorkflowActions = {
   // 节点/边操作
-  setNodes: (nodes: Node[] | ((prev: Node[]) => Node[])) => void;
-  setEdges: (edges: Edge[] | ((prev: Edge[]) => Edge[])) => void;
+  setNodes: (nodes: Node<WorkflowNodeData>[] | ((prev: Node<WorkflowNodeData>[]) => Node<WorkflowNodeData>[])) => void;
+  setEdges: (edges: Edge<WorkflowEdgeData>[] | ((prev: Edge<WorkflowEdgeData>[]) => Edge<WorkflowEdgeData>[])) => void;
 
   // 控制模式切换
   setControlMode: (mode: ControlMode) => void;
@@ -82,16 +82,16 @@ export const useWorkflowStore = create<WorkflowState & WorkflowActions>((set) =>
  * 历史记录状态
  */
 type HistoryState = {
-  nodes: Node[];
-  edges: Edge[];
+  nodes: Node<WorkflowNodeData>[];
+  edges: Edge<WorkflowEdgeData>[];
   workflowHistoryEvent: WorkflowHistoryEventT | undefined;
   workflowHistoryEventMeta: WorkflowHistoryEventMeta | undefined;
 };
 
 type HistoryActions = {
   saveSnapshot: (
-    nodes: Node[],
-    edges: Edge[],
+    nodes: Node<WorkflowNodeData>[],
+    edges: Edge<WorkflowEdgeData>[],
     event?: WorkflowHistoryEventT,
     meta?: WorkflowHistoryEventMeta
   ) => void;
