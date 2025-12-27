@@ -19,22 +19,32 @@ export type NodeSelectorProps = {
 
 const MOCK_GROUPS = [
   {
-    title: 'ComfyUI',
+    title: 'AI 生成',
     items: [
-      { id: 'comfy-image', title: '图片生成', desc: '文生图节点', type: 'comfy-image' },
-      { id: 'comfy-video', title: '视频生成', desc: '文生视频节点', type: 'comfy-video' },
+      { id: 'image-generation', title: '图片生成', desc: '支持多种 AI 图片生成引擎', type: 'image-generation' },
+      { id: 'video-generation', title: '视频生成', desc: '支持多种 AI 视频生成引擎', type: 'video-generation' },
     ],
   },
   {
-    title: 'Asset',
-    items: [{ id: 'asset', title: '资产输出', desc: '展示生成的产物', type: 'asset' }],
+    title: 'ComfyUI (旧版)',
+    items: [
+      { id: 'comfy-image', title: 'ComfyUI 图片', desc: '旧版文生图节点', type: 'comfy-image' },
+      { id: 'comfy-video', title: 'ComfyUI 视频', desc: '旧版文生视频节点', type: 'comfy-video' },
+    ],
+  },
+  {
+    title: '输入输出',
+    items: [
+      { id: 'image-node', title: '图片输入', desc: '上传/粘贴/拖入图片', type: 'image-node' },
+      { id: 'asset', title: '资产输出', desc: '展示生成的产物', type: 'asset' },
+    ],
   },
 ];
 
 export const NodeSelector = memo(
   ({
     trigger,
-    onAdd,
+    onSelect,
     open: openFromProps,
     onOpenChange,
     placement = 'right',

@@ -24,30 +24,9 @@ export function App() {
       const canvas = await res.json();
       console.log('Canvas created:', canvas);
 
-      // 设置初始节点（用于演示）
-      setNodes([
-        {
-          id: 'demo-node-1',
-          type: 'default',
-          position: { x: 250, y: 150 },
-          data: { label: '示例节点 1' },
-        },
-        {
-          id: 'demo-node-2',
-          type: 'default',
-          position: { x: 550, y: 150 },
-          data: { label: '示例节点 2' },
-        },
-      ]);
-
-      setEdges([
-        {
-          id: 'e1-2',
-          source: 'demo-node-1',
-          target: 'demo-node-2',
-          type: 'smoothstep',
-        },
-      ]);
+      // 初始化空画布
+      setNodes([]);
+      setEdges([]);
     };
 
     void init();

@@ -1,35 +1,33 @@
 /**
- * ComfyUI 图片生成节点
- * 使用侧边配置面板配置参数
+ * 图片生成节点
+ * 支持多种 Provider（ComfyUI、DALL-E 等）
+ * 参数配置通过侧边面板完成
  */
 
 import { memo, useCallback, useState } from 'react';
 import { Handle, Position, type NodeProps, useReactFlow } from 'reactflow';
-import { Play, Loader2, ImageIcon, Settings } from 'lucide-react';
+import { Play, Loader2, Image, Settings } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import type { WorkflowNodeData } from '../../types';
 
-interface ComfyImageNodeData extends WorkflowNodeData {
+interface ImageGenerationNodeData extends WorkflowNodeData {
+  providerId?: string;
   taskParams?: Record<string, unknown>;
 }
 
-export const ComfyImageNode = memo(({ id, data, selected }: NodeProps<ComfyImageNodeData>) => {
+export const ImageGenerationNode = memo(({ id, data, selected }: NodeProps<ImageGenerationNodeData>) => {
   const reactFlow = useReactFlow();
   const [isExecuting, setIsExecuting] = useState(false);
 
-  // 从 taskParams 读取当前配置
+  // 当前配置
+  const providerId = data.providerId || 'comfyui';
   const taskParams = data.taskParams || {};
-  const prompt = (taskParams.prompt as string) || '';
-  const negativePrompt = (taskParams.negativePrompt as string) || '';
-  const width = (taskParams.width as number) || 512;
-  const height = (taskParams.height as number) || 512;
-  const steps = (taskParams.steps as number) || 20;
-  const hasConfig = !!prompt;
+  const hasPrompt = taskParams.prompt && String(taskParams.prompt).trim().length > 0;
 
   // 执行任务
   const handleExecute = useCallback(async () => {
-    if (!hasConfig) {
-      alert('请先在右侧配置面板中配置参数');
+    if (!hasPrompt) {
+      alert('请先在右侧配置面板中填写提示词');
       return;
     }
 
@@ -43,6 +41,8 @@ export const ComfyImageNode = memo(({ id, data, selected }: NodeProps<ComfyImage
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           triggerSource: 'manual',
+          providerId,
+          taskType: 'text-to-image',
           params: taskParams,
         }),
       });
@@ -52,17 +52,17 @@ export const ComfyImageNode = memo(({ id, data, selected }: NodeProps<ComfyImage
       }
 
       const result = await response.json();
-      console.log('[ComfyImageNode] Run created:', result);
+      console.log('[ImageGenerationNode] Run created:', result);
 
       // 自动创建 TaskNode
       createTaskNode(result.runId);
     } catch (error) {
-      console.error('[ComfyImageNode] Execute failed:', error);
+      console.error('[ImageGenerationNode] Execute failed:', error);
       alert(`执行失败: ${error instanceof Error ? error.message : '未知错误'}`);
     } finally {
       setIsExecuting(false);
     }
-  }, [id, taskParams, hasConfig]);
+  }, [id, providerId, taskParams, hasPrompt]);
 
   // 创建 TaskNode 并连接
   const createTaskNode = useCallback(
@@ -88,7 +88,11 @@ export const ComfyImageNode = memo(({ id, data, selected }: NodeProps<ComfyImage
             runId,
             progress: 0,
             output: {
-              metadata: taskParams,
+              metadata: {
+                providerId,
+                taskType: 'text-to-image',
+                ...taskParams,
+              },
             },
           },
         },
@@ -106,8 +110,18 @@ export const ComfyImageNode = memo(({ id, data, selected }: NodeProps<ComfyImage
       reactFlow.addNodes(taskNode);
       reactFlow.addEdges(edge);
     },
-    [id, reactFlow, taskParams]
+    [id, reactFlow, providerId, taskParams]
   );
+
+  // 获取 Provider 显示名称
+  const getProviderLabel = () => {
+    const map: Record<string, string> = {
+      comfyui: 'ComfyUI',
+      dalle: 'DALL-E',
+      sd: 'Stable Diffusion',
+    };
+    return map[providerId] || providerId;
+  };
 
   return (
     <div
@@ -142,54 +156,45 @@ export const ComfyImageNode = memo(({ id, data, selected }: NodeProps<ComfyImage
         {/* 标题栏 */}
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <ImageIcon size={16} className="text-blue-500" />
+            <Image size={16} className="text-blue-500" />
             <div>
-              <div className="text-sm font-semibold text-neutral-900">ComfyUI 图片</div>
-              <div className="text-xs text-neutral-500">文生图</div>
+              <div className="text-sm font-semibold text-neutral-900">图片生成</div>
+              <div className="text-xs text-neutral-500">{getProviderLabel()}</div>
             </div>
           </div>
-          {selected && <Settings size={14} className="text-neutral-400" />}
+          {selected && (
+            <Settings size={14} className="text-neutral-400" />
+          )}
         </div>
 
         {/* 参数预览 */}
         <div className="mb-3 space-y-1">
-          {prompt ? (
+          {taskParams.prompt ? (
             <div className="text-xs text-neutral-600">
               <span className="font-medium">Prompt:</span>
               <p className="mt-0.5 truncate text-neutral-500">
-                {prompt.slice(0, 40)}
-                {prompt.length > 40 ? '...' : ''}
+                {String(taskParams.prompt).slice(0, 50)}
+                {String(taskParams.prompt).length > 50 ? '...' : ''}
               </p>
             </div>
           ) : (
             <div className="text-xs text-neutral-400">未配置提示词</div>
           )}
 
-          {negativePrompt && (
+          {(taskParams.width !== undefined || taskParams.height !== undefined) && (
             <div className="text-xs text-neutral-500">
-              反向: {negativePrompt.slice(0, 30)}
-              {negativePrompt.length > 30 ? '...' : ''}
+              尺寸: {(taskParams.width as number) || 512} × {(taskParams.height as number) || 512}
             </div>
-          )}
-
-          {(width !== 512 || height !== 512) && (
-            <div className="text-xs text-neutral-500">
-              尺寸: {width} × {height}
-            </div>
-          )}
-
-          {steps !== 20 && (
-            <div className="text-xs text-neutral-500">步数: {steps}</div>
           )}
         </div>
 
         {/* 执行按钮 */}
         <button
           onClick={handleExecute}
-          disabled={isExecuting || !hasConfig}
+          disabled={isExecuting || !hasPrompt}
           className={cn(
             'flex w-full items-center justify-center space-x-2 rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors',
-            isExecuting || !hasConfig
+            isExecuting || !hasPrompt
               ? 'cursor-not-allowed bg-neutral-400'
               : 'bg-blue-500 hover:bg-blue-600'
           )}
@@ -207,7 +212,7 @@ export const ComfyImageNode = memo(({ id, data, selected }: NodeProps<ComfyImage
           )}
         </button>
 
-        {!hasConfig && (
+        {!hasPrompt && (
           <div className="mt-2 text-center text-xs text-neutral-400">
             点击节点后在右侧配置参数
           </div>
@@ -217,4 +222,4 @@ export const ComfyImageNode = memo(({ id, data, selected }: NodeProps<ComfyImage
   );
 });
 
-ComfyImageNode.displayName = 'ComfyImageNode';
+ImageGenerationNode.displayName = 'ImageGenerationNode';

@@ -101,7 +101,8 @@ export const BaseNode = memo(
       <div
         data-selected={selected}
         className={cn(
-          'group relative w-[240px] rounded-xl border border-neutral-200 bg-white p-3 shadow-sm transition hover:shadow-md',
+          'group relative w-[240px] rounded-xl border border-neutral-200 bg-white p-3 shadow-sm will-change-transform',
+          'hover:shadow-md transition-shadow',
           'data-[selected=true]:border-sky-400 data-[selected=true]:shadow-lg'
         )}
       >
@@ -143,7 +144,10 @@ export const BaseNode = memo(
           </div>
         ) : null}
 
-        <Ports inputs={data.inputs} outputs={data.outputs} />
+        <Ports
+          inputs={data.inputs ?? []}
+          outputs={data.outputs ?? []}
+        />
       </div>
     );
   }

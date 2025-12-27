@@ -5,7 +5,7 @@
 
 import { useCallback } from 'react';
 import dagre from 'dagre';
-import type { Node, Edge } from 'reactflow';
+import type { Node } from 'reactflow';
 import { useWorkflowStore } from '../store/useWorkflowStore';
 import { useWorkflowHistory } from './useWorkflowHistory';
 

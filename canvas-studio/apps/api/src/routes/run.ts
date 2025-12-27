@@ -7,6 +7,7 @@ import type { Store } from "../store/types.js";
 
 const CreateRunBody = z.object({
   triggerSource: z.enum(["manual", "auto"]).default("manual"),
+  params: z.record(z.any()).optional(), // 节点参数（如 prompt, width, height 等）
 });
 
 export async function registerRunRoutes(app: FastifyInstance, store: Store, queues: Queues) {
@@ -21,7 +22,7 @@ export async function registerRunRoutes(app: FastifyInstance, store: Store, queu
     const now = nowIso();
     const nodeType = "demo.simulate.v1";
     const inputSnapshot = { inputs: {} };
-    const paramsSnapshot = { nodeTypeVersion: 1, params: {} };
+    const paramsSnapshot = { nodeTypeVersion: 1, params: body.params ?? {} };
 
     store.insertRun({
       id: runId,

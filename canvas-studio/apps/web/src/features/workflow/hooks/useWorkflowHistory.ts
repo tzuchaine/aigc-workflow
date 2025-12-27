@@ -11,7 +11,7 @@ import {
 } from '../store/useWorkflowStore';
 
 export const useWorkflowHistory = () => {
-  const { nodes, edges, setNodes, setEdges, shortcutsEnabled } = useWorkflowStore();
+  const { setNodes, setEdges, shortcutsEnabled } = useWorkflowStore();
   const { saveSnapshot } = useHistoryStore();
 
   /**

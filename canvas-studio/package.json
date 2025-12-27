@@ -11,6 +11,7 @@
     "type-check": "pnpm -C apps/api type-check && pnpm -C apps/worker type-check && pnpm -C apps/web type-check"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "concurrently": "^9.2.1"
   }
 }

@@ -22,10 +22,10 @@ type HistoryEntry = {
 };
 
 type HistoryState = {
-  nodes: any[];
-  edges: any[];
+  nodes: unknown[];
+  edges: unknown[];
   workflowHistoryEvent?: string;
-  workflowHistoryEventMeta?: any;
+  workflowHistoryEventMeta?: Record<string, unknown>;
 };
 
 export const HistoryPanel = memo(() => {

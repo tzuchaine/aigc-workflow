@@ -2,11 +2,12 @@ import { memo, useMemo } from 'react';
 import {
   BaseEdge,
   EdgeLabelRenderer,
-  getSmoothStepPath,
+  getBezierPath,
+  Position,
   MarkerType,
   type EdgeProps,
 } from 'reactflow';
-import { cn } from '../../../../utils/cn';
+import { cn } from '@/utils/cn';
 import type { WorkflowEdgeData } from '../../types';
 
 const MODE_COLOR: Record<string, string> = {
@@ -15,10 +16,17 @@ const MODE_COLOR: Record<string, string> = {
 };
 
 export const WorkflowEdge = memo(({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, data, selected, markerEnd, style }: EdgeProps<WorkflowEdgeData>) => {
-  const [edgePath, labelX, labelY] = useMemo(
-    () => getSmoothStepPath({ sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition }),
-    [sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition]
-  );
+  const [edgePath, labelX, labelY] = useMemo(() => {
+    return getBezierPath({
+      sourceX: sourceX - 8,
+      sourceY,
+      sourcePosition: sourcePosition || Position.Right,
+      targetX: targetX + 8,
+      targetY,
+      targetPosition: targetPosition || Position.Left,
+      curvature: 0.16,
+    });
+  }, [sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition]);
 
   const mode = data?.mode ?? 'auto';
   const stroke = selected ? '#38bdf8' : MODE_COLOR[mode] ?? '#cfd4dc';
@@ -30,14 +38,12 @@ export const WorkflowEdge = memo(({ id, sourceX, sourceY, targetX, targetY, sour
       <BaseEdge
         id={id}
         path={edgePath}
-        markerEnd={
-          markerEnd ?? {
-            type: MarkerType.ArrowClosed,
-            color: stroke,
-            width: 16,
-            height: 16,
-          }
-        }
+        markerEnd={(typeof markerEnd === 'string' ? markerEnd : undefined) ?? {
+          type: MarkerType.ArrowClosed,
+          color: stroke,
+          width: 16,
+          height: 16,
+        } as unknown as string}
         style={{
           stroke,
           strokeWidth: selected ? 2.5 : 1.5,

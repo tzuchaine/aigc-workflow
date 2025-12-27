@@ -105,7 +105,7 @@ export const PortalToFollowElemTrigger = ({
   ...props
 }: React.HTMLProps<HTMLElement> & { ref?: React.RefObject<HTMLElement | null>; asChild?: boolean }) => {
   const context = usePortalToFollowElemContext();
-  const childrenRef = (children as any).props?.ref;
+  const childrenRef = (children as { props?: { ref?: React.Ref<unknown> } }).props?.ref;
   const ref = useMergeRefs([context.refs.setReference, propRef, childrenRef]);
 
   if (asChild && React.isValidElement(children)) {

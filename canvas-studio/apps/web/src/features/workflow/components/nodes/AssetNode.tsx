@@ -13,12 +13,19 @@ const defaultData: WorkflowNodeData = {
 };
 
 export const AssetNode = memo((props: NodeProps<WorkflowNodeData>) => {
+  const subtitle = props.data.subtitle ?? defaultData.subtitle;
+  const typeValue = props.data.type ?? defaultData.type;
+  const inputs = props.data.inputs ?? defaultData.inputs;
+  const outputs = props.data.outputs ?? defaultData.outputs;
+  const runtime = props.data.runtime ?? defaultData.runtime;
+
   const mergedData: WorkflowNodeData = {
-    ...defaultData,
-    ...props.data,
-    inputs: props.data?.inputs ?? defaultData.inputs,
-    outputs: props.data?.outputs ?? defaultData.outputs,
-    runtime: props.data?.runtime ?? defaultData.runtime,
+    title: props.data.title ?? defaultData.title,
+    ...(subtitle !== undefined && { subtitle }),
+    ...(typeValue !== undefined && { type: typeValue }),
+    ...(inputs !== undefined && { inputs }),
+    ...(outputs !== undefined && { outputs }),
+    ...(runtime !== undefined && { runtime }),
   };
 
   return <BaseNode {...props} data={mergedData} />;

@@ -17,6 +17,7 @@ export default {
         'state-base-hover': '#f3f4f6',
         'state-accent-active': '#eff6ff',
         'state-accent-active-alt': '#dbeafe',
+        'state-accent-outline': '#3b82f6',
         'state-destructive-hover': '#fee2e2',
 
         // 组件背景
@@ -28,6 +29,8 @@ export default {
         'components-badge-bg-dimm': '#f3f4f6',
         'components-tooltip-bg': 'rgba(255, 255, 255, 0.95)',
         'components-kbd-bg-gray': '#f3f4f6',
+        'components-button-primary-bg': '#3b82f6',
+        'components-button-primary-bg-hover': '#2563eb',
 
         // 分割线
         'divider-regular': '#e5e7eb',
@@ -38,6 +41,20 @@ export default {
       },
       backdropBlur: {
         xs: '2px',
+      },
+      keyframes: {
+        'slide-in-from-right': {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
+        'fade-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+      },
+      animation: {
+        'slide-in-from-right': 'slide-in-from-right 0.2s ease-out',
+        'fade-in': 'fade-in 0.2s ease-out',
       },
     },
   },

@@ -16,7 +16,14 @@ export const useToastStore = create<ToastStore>((set) => ({
   toasts: [],
   add: (message, duration) =>
     set((state) => ({
-      toasts: [...state.toasts, { id: `${Date.now()}`, message, duration }],
+      toasts: [
+        ...state.toasts,
+        {
+          id: `${Date.now()}`,
+          message,
+          ...(duration !== undefined && { duration }),
+        },
+      ],
     })),
   remove: (id) =>
     set((state) => ({

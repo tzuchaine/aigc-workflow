@@ -11,7 +11,13 @@ export const useNodeRun = () => {
   });
 
   const setStatus = (status: NodeRunState['runtime']['status'], progress?: number, message?: string) => {
-    setState({ runtime: { status, progress, message } });
+    setState({
+      runtime: {
+        status,
+        ...(progress !== undefined && { progress }),
+        ...(message !== undefined && { message }),
+      },
+    });
   };
 
   return {
